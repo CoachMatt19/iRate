@@ -1,91 +1,67 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const router = useRouter();
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  async function signUp() {
-    setMessage("");
+  async function signInWithGoogle() {
+    try {
+      setLoading(true);
+      setMessage("");
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin,
+        },
+      });
 
-    if (error) {
-      setMessage(error.message);
-      return;
+      if (error) {
+        throw error;
+      }
+    } catch (error: any) {
+      console.error(error);
+
+      setMessage(
+        error?.message || "Could not sign in with Google."
+      );
+
+      setLoading(false);
     }
-
-    setMessage(
-      "Account created. Check your email if confirmation is required."
-    );
-  }
-
-  async function signIn() {
-    setMessage("");
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setMessage(error.message);
-      return;
-    }
-
-    router.push("/");
   }
 
   return (
-    <main className="min-h-screen bg-black text-white flex items-center justify-center p-8">
-      <div className="w-full max-w-md bg-zinc-900 p-8 rounded-xl">
-        <h1 className="text-3xl font-bold mb-6">
+    <main className="min-h-screen flex items-center justify-center px-4">
+      <div className="y2k-card w-full max-w-md p-8">
+        <Link
+          href="/"
+          className="inline-block text-zinc-400 hover:text-white mb-8"
+        >
+          ← Back
+        </Link>
+
+        <h1 className="text-4xl font-black y2k-title mb-3">
           iRate
         </h1>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full mb-4 bg-black border border-zinc-700 rounded-lg px-4 py-3"
-        />
+        <p className="text-zinc-400 mb-8">
+          Sign in to rate music, follow friends, and save your scores.
+        </p>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full mb-6 bg-black border border-zinc-700 rounded-lg px-4 py-3"
-        />
-
-        <div className="flex gap-3">
-          <button
-            onClick={signIn}
-            className="flex-1 bg-white text-black py-3 rounded-lg font-semibold"
-          >
-            Log In
-          </button>
-
-          <button
-            onClick={signUp}
-            className="flex-1 bg-zinc-700 py-3 rounded-lg font-semibold"
-          >
-            Sign Up
-          </button>
-        </div>
+        <button
+          onClick={signInWithGoogle}
+          disabled={loading}
+          className="w-full bg-white text-black rounded-xl py-4 px-5 font-bold flex items-center justify-center gap-3 hover:bg-zinc-200 transition disabled:opacity-50"
+        >
+          {loading ? "Connecting..." : "Continue with Google"}
+        </button>
 
         {message && (
-          <p className="mt-4 text-sm text-zinc-400">
+          <p className="text-red-400 mt-4 text-sm">
             {message}
           </p>
         )}
