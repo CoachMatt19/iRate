@@ -307,8 +307,7 @@ useEffect(() => {
             {ratings.map((rating) => (
               <Link
                 key={rating.id}
-                href={`/album/${rating.spotify_album_id}`}
-                className="bg-zinc-900 rounded-xl p-4 hover:bg-zinc-800 transition"
+href={`/user/${profile.username}/album/${rating.spotify_album_id}`}                className="bg-zinc-900 rounded-xl p-4 hover:bg-zinc-800 transition"
               >
                 {rating.album_image && (
                   <img
